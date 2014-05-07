@@ -4,7 +4,7 @@ A very easy to use database library which extends PDO with some nice and straigh
 
 ## Example
 ```php
-$dbConnect = new DBConnect('localhost', 'my_db', 'my_db_user, 'secret');
+$dbConnect = new DBConnect('localhost', 'my_db', 'my_db_user', 'secret');
 $db = new DBMySQL($dbConnect);
 
 $stmnt = $db->prepare("SELECT ID, name, email FROM user WHERE email LIKE ?");
