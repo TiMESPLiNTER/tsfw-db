@@ -10,7 +10,7 @@ use \PDOException;
  * Description of DBMySQL
  *
  * @author Pascal Münst <dev@timesplinter.ch>
- * @copyright Copyright (c) 2012, TiMESPLiNTER
+ * @copyright Copyright (c) 2012, TiMESPLiNTER Webdevelopment
  */
 class DBMySQL extends DB {
 
@@ -53,9 +53,11 @@ class DBMySQL extends DB {
 
 	public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = self::FETCH_OBJ, $fetchArgument = null, array $ctorArgs = array()) {
 		try {
+			$this->triggerListeners('beforeSelect', array($this, $stmnt, $params));
+
 			$stmnt->execute($params);
 
-			$this->triggerListeners('onSelect', array($this, $stmnt, $params));
+			$this->triggerListeners('afterSelect', array($this, $stmnt, $params));
 
 			return $stmnt->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
 		} catch(PDOException $e) {

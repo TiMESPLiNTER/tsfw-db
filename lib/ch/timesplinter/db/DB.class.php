@@ -107,6 +107,8 @@ abstract class DB extends PDO {
 			$this->triggerListeners('beforeBeginTransaction', array($this));
 
 			parent::beginTransaction();
+
+			$this->triggerListeners('afterBeginTransaction', array($this));
 		} catch(\PDOException $e) {
 			throw new DBException('PDO could not begin transaction: ' . $e->getMessage(), $e->getCode());
 		}
@@ -121,6 +123,8 @@ abstract class DB extends PDO {
 	 */
 	public function commit() {
 		try {
+			$this->triggerListeners('beforeCommit', array($this));
+
 			parent::commit();
 
 			$this->triggerListeners('afterCommit', array($this));
