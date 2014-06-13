@@ -2,25 +2,15 @@
 
 namespace ch\timesplinter\db;
 
-use ch\timesplinter\db\DB;
-use ch\timesplinter\db\DBConnect;
 use \PDO;
 use \PDOStatement;
 use \PDOException;
 
 /**
  * Description of DBMySQL
- * 
- * Changes:
- * - 2012-10-01 pam Typesafe select, update, insert methods -> version 1.1
  *
  * @author Pascal Münst <dev@timesplinter.ch>
  * @copyright Copyright (c) 2012, TiMESPLiNTER
- * @version 1.1.3
- * 
- * @change 2012-10-10 Uses now the new abstract class 'DB' instead of the interface and makes use of the execute()-method in it (pam)
- * @change 2012-10-23 Method prepare() from PDO class overridden. Throws now a DBException. (pam)
- * @change 2013-05-28 Uses listeners to react on events like select, update, insert, execute and prepare, etc.
  */
 class DBMySQL extends DB {
 
@@ -61,60 +51,23 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function select(PDOStatement $stmnt, array $params = array()) {
-		$paramCount = count($params);
-
+	public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = self::FETCH_OBJ, $fetchArgument = null, array $ctorArgs = array()) {
 		try {
-			// Bind params to statement
-			for($i = 0; $i < $paramCount; $i++) {
-				$paramType = (is_int($params[$i])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-				$stmnt->bindParam(($i + 1), $params[$i], $paramType);
-			}
-
-			$this->execute($stmnt);
+			$stmnt->execute($params);
 
 			$this->triggerListeners('onSelect', array($this, $stmnt, $params));
 
-			return $stmnt->fetchAll(PDO::FETCH_OBJ);
-		} catch(PDOException $e) {
-			throw new DBException('PDO could not execute select query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
-		}
-	}
-
-// selectAsObjects($stmnt,$params,$className)
-	public function selectAsObjects(PDOStatement $stmnt, $className, array $params = null) {
-		$paramCount = count($params);
-
-		try {
-			// Bind params to statement
-			for($i = 0; $i < $paramCount; $i++) {
-				$paramType = (is_int($params[$i])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-				$stmnt->bindParam(($i + 1), $params[$i], $paramType);
-			}
-
-			$this->execute($stmnt);
-
-			$this->triggerListeners('onSelect', array($this, $stmnt, $params));
-
-			return $stmnt->fetchAll(PDO::FETCH_CLASS, $className);
+			return $stmnt->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
 		} catch(PDOException $e) {
 			throw new DBException('PDO could not execute select query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
 
 	public function insert(PDOStatement $stmnt, array $params = array()) {
-		$paramCount = count($params);
-
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_INSERT));
 
-			// Bind params to statement
-			for($i = 0; $i < $paramCount; $i++) {
-				$paramType = (is_int($params[$i])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-				$stmnt->bindParam(($i + 1), $params[$i], $paramType);
-			}
-
-			$this->execute($stmnt);
+			$stmnt->execute($params);
 
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_INSERT));
 
@@ -125,18 +78,10 @@ class DBMySQL extends DB {
 	}
 
 	public function update(PDOStatement $stmnt, array $params = array()) {
-		$paramCount = count($params);
-
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_UPDATE));
 
-			// Bind params to statement
-			for($i = 0; $i < $paramCount; $i++) {
-				$paramType = (is_int($params[$i])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-				$stmnt->bindParam(($i + 1), $params[$i], $paramType);
-			}
-			
-			$this->execute($stmnt);
+			$stmnt->execute($params);
 
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_UPDATE));
 
@@ -147,18 +92,10 @@ class DBMySQL extends DB {
 	}
 
 	public function delete(PDOStatement $stmnt, array $params) {
-		$paramCount = count($params);
-
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_DELETE));
 
-			// Bind params to statement
-			for($i = 0; $i < $paramCount; $i++) {
-				$paramType = (is_int($params[$i])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-				$stmnt->bindParam(($i + 1), $params[$i], $paramType);
-			}
-
-			$this->execute($stmnt);
+			$stmnt->execute($params);
 
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_DELETE));
 

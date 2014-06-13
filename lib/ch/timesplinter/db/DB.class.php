@@ -37,23 +37,17 @@ abstract class DB extends PDO {
 	 * @return PDOStatement The prepared statement
 	 */
 	abstract public function prepareStatement($sql);
-	
-	/**
-	 * Returns the result as an array of $className objects
-	 * @param PDOStatement $stmnt The prepared statement
-	 * @param Array $params The parameters for the prepared statement
-	 * @param String $className The mapped class name
-	 * @return array
-	 */
-	abstract public function selectAsObjects(PDOStatement $stmnt, $className, array $params = array());
 
 	/**
 	 * Returns the result as an array of anonymous objects
 	 * @param PDOStatement $stmnt The prepared statement
 	 * @param array $params The parameters for the prepared statement
-	 * @return array
+	 * @param int $fetchStyle
+	 * @param mixed $fetchArgument This argument has a different meaning depending on the value of the fetchStyle parameter
+	 * @param array $ctorArgs Arguments of custom class constructor when the fetchStyle  parameter is DB::FETCH_CLASS
+	 * @return array The result set
 	 */
-	abstract public function select(PDOStatement $stmnt, array $params = array());
+	abstract public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = self::FETCH_OBJ, $fetchArgument = null, array $ctorArgs = array());
 
 	/**
 	 * Inserts a prepared statement with the given parameters
@@ -113,7 +107,7 @@ abstract class DB extends PDO {
 			$this->triggerListeners('beforeBeginTransaction', array($this));
 
 			parent::beginTransaction();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not begin transaction: ' . $e->getMessage(), $e->getCode());
 		}
 	}
@@ -122,6 +116,7 @@ abstract class DB extends PDO {
 	 * (PHP 5 &gt;= 5.1.0, PECL pdo &gt;= 0.1.0)<br/>
 	 * Commits a transaction
 	 * @link http://php.net/manual/en/pdo.commit.php
+	 * @throws DBException
 	 * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
 	 */
 	public function commit() {
@@ -131,7 +126,7 @@ abstract class DB extends PDO {
 			$this->triggerListeners('afterCommit', array($this));
 
 			$this->transactionName = null;
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not commit transaction: ' . $e->getMessage(), $e->getCode());
 		}
 	}
@@ -197,7 +192,7 @@ abstract class DB extends PDO {
 
 	/**
 	 * Triggers a call of a specific method from all registered listener classes if the listeners are not set to mute
-	 * @param $method The listener method that should be called
+	 * @param string $method The listener method that should be called
 	 * @param array $params The parameters for the listener method
 	 */
 	protected function triggerListeners($method, array $params = array()) {
