@@ -7,14 +7,15 @@ use \PDOStatement;
 use \PDOException;
 
 /**
- * Description of DBMySQL
- *
  * @author Pascal Münst <dev@timesplinter.ch>
  * @copyright Copyright (c) 2012, TiMESPLiNTER Webdevelopment
  */
-class DBMySQL extends DB {
+class DBMySQL extends DB
+{
+	protected static $defaultFetchStyle = self::FETCH_OBJ;
 
-	public function __construct(DBConnect $dbConnect) {
+	public function __construct(DBConnect $dbConnect)
+	{
 		$this->dbConnect = $dbConnect;
 
 		try {
@@ -35,11 +36,13 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function prepareStatement($sql) {
+	public function prepareStatement($sql)
+	{
 		return self::prepare($sql);
 	}
 	
-	public function prepare($sql, $driver_options = array()) {
+	public function prepare($sql, $driver_options = array())
+	{
 		try {
 			$stmnt = parent::prepare($sql, $driver_options);
 
@@ -51,7 +54,10 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = self::FETCH_OBJ, $fetchArgument = null, array $ctorArgs = array()) {
+	public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = null, $fetchArgument = null, array $ctorArgs = array())
+	{
+		$fetchStyle = ($fetchStyle !== null) ? $fetchStyle : self::$defaultFetchStyle;
+
 		try {
 			$this->triggerListeners('beforeSelect', array($this, $stmnt, $params));
 
@@ -59,13 +65,17 @@ class DBMySQL extends DB {
 
 			$this->triggerListeners('afterSelect', array($this, $stmnt, $params));
 
-			return $stmnt->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
+			if($fetchStyle !== PDO::FETCH_CLASS && $fetchStyle !== self::FETCH_FUNC)
+				return $stmnt->fetchAll($fetchStyle);
+			else
+				return $stmnt->fetchAll($fetchStyle, $fetchArgument);
 		} catch(PDOException $e) {
 			throw new DBException('PDO could not execute select query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
 
-	public function insert(PDOStatement $stmnt, array $params = array()) {
+	public function insert(PDOStatement $stmnt, array $params = array())
+	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_INSERT));
 
@@ -79,7 +89,8 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function update(PDOStatement $stmnt, array $params = array()) {
+	public function update(PDOStatement $stmnt, array $params = array())
+	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_UPDATE));
 
@@ -93,7 +104,8 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function delete(PDOStatement $stmnt, array $params) {
+	public function delete(PDOStatement $stmnt, array $params)
+	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_DELETE));
 
@@ -107,8 +119,14 @@ class DBMySQL extends DB {
 		}
 	}
 
-	public function getDbConnect() {
+	public function getDbConnect()
+	{
 		return $this->dbConnect;
+	}
+
+	public static function setDefaultFetchMode($defaultFetchStyle)
+	{
+		self::$defaultFetchStyle = $defaultFetchStyle;
 	}
 }
 
