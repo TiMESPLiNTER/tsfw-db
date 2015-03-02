@@ -1,6 +1,6 @@
 <?php
 
-namespace ch\timesplinter\db;
+use timesplinter\tsfw\db;
 
 use \PDO;
 use \PDOStatement;

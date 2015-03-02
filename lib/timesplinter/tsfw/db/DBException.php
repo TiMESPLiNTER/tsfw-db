@@ -1,9 +1,6 @@
 <?php
 
-namespace ch\timesplinter\db;
-
-use \Exception;
-use ch\timesplinter\core\ExceptionHandling;
+namespace timesplinter\tsfw\db;
 
 /**
  * @author Pascal Muenst <dev@timesplinter.ch>
@@ -14,7 +11,7 @@ class DBException extends \PDOException
 	protected $queryString;
 	protected $queryParams;
 
-	public function __construct($message, $code, $queryString = '', $queryParams = array(), Exception $previous = null)
+	public function __construct($message, $code, $queryString = '', $queryParams = array(), \Exception $previous = null)
 	{
 		parent::__construct($message, 0, $previous);
 
