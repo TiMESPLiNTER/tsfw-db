@@ -1,10 +1,6 @@
 <?php
 
-use timesplinter\tsfw\db;
-
-use \PDO;
-use \PDOStatement;
-use \PDOException;
+namespace timesplinter\tsfw\db;
 
 /**
  * @author Pascal Münst <dev@timesplinter.ch>
@@ -25,13 +21,13 @@ class DBMySQL extends DB
 				, $dbConnect->getPassword()
 			);
 
-			$this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 			$this->query("SET NAMES '" . $dbConnect->getCharset() . "'");
 			$this->query("SET CHARSET '" . $dbConnect->getCharset() . "'");
 
 			$this->triggerListeners('onConnect', array($this, $this->dbConnect));
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not connect to database: ' . $e->getMessage(), $e->getCode());
 		}
 	}
@@ -49,12 +45,12 @@ class DBMySQL extends DB
 			$this->triggerListeners('onPrepare', array($this, $stmnt));
 
 			return $stmnt;
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not prepare query: ' . $e->getMessage(), $e->getCode(), $sql);
 		}
 	}
 
-	public function select(PDOStatement $stmnt, array $params = array(), $fetchStyle = null, $fetchArgument = null, array $ctorArgs = array())
+	public function select(\PDOStatement $stmnt, array $params = array(), $fetchStyle = null, $fetchArgument = null, array $ctorArgs = array())
 	{
 		$fetchStyle = ($fetchStyle !== null) ? $fetchStyle : self::$defaultFetchStyle;
 
@@ -65,16 +61,16 @@ class DBMySQL extends DB
 
 			$this->triggerListeners('afterSelect', array($this, $stmnt, $params));
 
-			if($fetchStyle !== PDO::FETCH_CLASS && $fetchStyle !== self::FETCH_FUNC)
+			if($fetchStyle !== \PDO::FETCH_CLASS && $fetchStyle !== self::FETCH_FUNC)
 				return $stmnt->fetchAll($fetchStyle);
 			else
 				return $stmnt->fetchAll($fetchStyle, $fetchArgument);
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not execute select query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
 
-	public function insert(PDOStatement $stmnt, array $params = array())
+	public function insert(\PDOStatement $stmnt, array $params = array())
 	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_INSERT));
@@ -84,12 +80,12 @@ class DBMySQL extends DB
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_INSERT));
 
 			return $this->lastInsertId();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not execute insert query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
 
-	public function update(PDOStatement $stmnt, array $params = array())
+	public function update(\PDOStatement $stmnt, array $params = array())
 	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_UPDATE));
@@ -99,12 +95,12 @@ class DBMySQL extends DB
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_UPDATE));
 
 			return $stmnt->rowCount();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not execute update query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
 
-	public function delete(PDOStatement $stmnt, array $params)
+	public function delete(\PDOStatement $stmnt, array $params)
 	{
 		try {
 			$this->triggerListeners('beforeMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_DELETE));
@@ -114,7 +110,7 @@ class DBMySQL extends DB
 			$this->triggerListeners('afterMutation', array($this, $stmnt, $params, DBListener::QUERY_TYPE_DELETE));
 
 			return $stmnt->rowCount();
-		} catch(PDOException $e) {
+		} catch(\PDOException $e) {
 			throw new DBException('PDO could not execute delete query: ' . $e->getMessage(), $e->getCode(), $stmnt->queryString, $params);
 		}
 	}
