@@ -3,7 +3,6 @@
 namespace timesplinter\tsfw\db;
 
 /**
- *
  * @author Pascal Münst <dev@timesplinter.ch>
  * @copyright Copyright (c) 2013, TiMESPLiNTER
  */
@@ -13,7 +12,7 @@ abstract class DB extends \PDO
 	protected $muteListeners;
 	protected $transactionName;
 	protected $dbConnect;
-
+	
 	public function __construct ($dsn, $username = null, $passwd = null, $options = null)
 	{
 		parent::__construct($dsn, $username, $passwd, $options);
@@ -22,7 +21,7 @@ abstract class DB extends \PDO
 		$this->muteListeners = false;
 		$this->transactionName = null;
 	}
-
+	
 	/**
 	 * Returns the SQL as a prepared statement
 	 * @deprecated since version 2.0.1
@@ -30,7 +29,7 @@ abstract class DB extends \PDO
 	 * @return \PDOStatement The prepared statement
 	 */
 	abstract public function prepareStatement($sql);
-
+	
 	/**
 	 * Returns the result as an array of anonymous objects
 	 * @param \PDOStatement $stmnt The prepared statement
@@ -41,7 +40,7 @@ abstract class DB extends \PDO
 	 * @return array The result set
 	 */
 	abstract public function select(\PDOStatement $stmnt, array $params = array(), $fetchStyle = self::FETCH_OBJ, $fetchArgument = null, array $ctorArgs = array());
-
+	
 	/**
 	 * Inserts a prepared statement with the given parameters
 	 * @param \PDOStatement $stmnt The prepared statement
@@ -49,27 +48,27 @@ abstract class DB extends \PDO
 	 * @return int ID of inserted row
 	 */
 	abstract public function insert(\PDOStatement $stmnt, array $params = array());
-
+	
 	/**
 	 * @param \PDOStatement $stmnt
 	 * @param array $params
 	 * @return int Affected rows
 	 */
 	abstract public function update(\PDOStatement $stmnt, array $params);
-
+	
 	/**
 	 * @param \PDOStatement $stmnt
 	 * @param array $params
 	 * @return int Affected rows
 	 */
 	abstract public function delete(\PDOStatement $stmnt, array $params);
-
+	
 	/**
 	 * Returns the DBConnect object with the current used connection
 	 * @return DBConnect
 	 */
 	abstract public function getDbConnect();
-
+	
 	/**
 	 * This method does the same as execute() of a PDOStatement but it fixes a
 	 * known issue of php that e.x. floats in some locale-settings contains a
@@ -95,7 +94,7 @@ abstract class DB extends \PDO
 			throw new DBException($e->errorInfo[2], $e->errorInfo[1], $stmnt->queryString);
 		}
 	}
-
+	
 	public function beginTransaction($transactionName = null)
 	{
 		$this->transactionName = $transactionName;
@@ -110,7 +109,7 @@ abstract class DB extends \PDO
 			throw new DBException('PDO could not begin transaction: ' . $e->getMessage(), $e->getCode());
 		}
 	}
-
+	
 	/**
 	 * (PHP 5 &gt;= 5.1.0, PECL pdo &gt;= 0.1.0)<br/>
 	 * Commits a transaction
@@ -134,7 +133,7 @@ abstract class DB extends \PDO
 			throw new DBException('PDO could not commit transaction: ' . $e->getMessage(), $e->getCode());
 		}
 	}
-
+	
 	/**
 	 * Adds a DBListener to listen on some events of the DB class
 	 * @param DBListener $listener The listener object to register
@@ -147,7 +146,7 @@ abstract class DB extends \PDO
 		else
 			$this->listeners->append($listener);
 	}
-
+	
 	/**
 	 * Removes the listener
 	 * @param string $name The name of the listener which should be removed
@@ -156,7 +155,7 @@ abstract class DB extends \PDO
 	{
 		$this->listeners->offsetUnset($name);
 	}
-
+	
 	/**
 	 * Removes all registered listeners at once
 	 */
@@ -164,7 +163,7 @@ abstract class DB extends \PDO
 	{
 		$this->listeners = new \ArrayObject();
 	}
-
+	
 	/**
 	 * Returns the name of the current transaction or null if none given
 	 * @return string|null
