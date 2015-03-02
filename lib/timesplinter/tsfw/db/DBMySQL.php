@@ -16,7 +16,7 @@ class DBMySQL extends DB
 
 		try {
 			parent::__construct(
-				'mysql:host=' . $dbConnect->getHost() . ';dbname=' . $dbConnect->getDatabase() . ';charset=' . $dbConnect->getCharset()
+				'mysql:host=' . $dbConnect->getHost() . ';dbname=' . $dbConnect->getDatabase() .  ($dbConnect->getCharset() !== null ? ';charset=' . $dbConnect->getCharset() : null)
 				, $dbConnect->getUsername()
 				, $dbConnect->getPassword()
 			);
@@ -24,8 +24,10 @@ class DBMySQL extends DB
 			$this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			$this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
-			$this->query("SET NAMES '" . $dbConnect->getCharset() . "'");
-			$this->query("SET CHARSET '" . $dbConnect->getCharset() . "'");
+			if(($charset = $dbConnect->getCharset()) !== null) {
+				$this->query("SET NAMES '" . $charset . "'");
+				$this->query("SET CHARSET '" . $charset . "'");
+			}
 
 			$this->triggerListeners('onConnect', array($this, $this->dbConnect));
 		} catch(\PDOException $e) {
