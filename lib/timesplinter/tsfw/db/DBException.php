@@ -11,11 +11,13 @@ class DBException extends \PDOException
 	protected $queryString;
 	protected $queryParams;
 
-	public function __construct($message, $code, $queryString = '', $queryParams = array(), \Exception $previous = null)
+	public function __construct(\PDOException $e, $queryString = null, $queryParams = null)
 	{
-		parent::__construct($message, 0, $previous);
+		parent::__construct($e->getMessage(), 0, $e);
 
-		$this->code = $code;
+		$this->code = $e->getCode();
+		$this->errorInfo = $e->errorInfo;
+		
 		$this->queryString = $queryString;
 		$this->queryParams = $queryParams;
 	}
